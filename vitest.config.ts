@@ -14,6 +14,7 @@ export default defineVitestConfig({
         'app/app.vue',
         'app/types/**',
       ],
+      reporter: ['text', 'html'],
       thresholds: {
         lines: 70,
         functions: 70,
