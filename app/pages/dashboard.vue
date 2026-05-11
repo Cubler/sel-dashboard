@@ -95,11 +95,14 @@
       </template>
     </main>
 
-    <!-- Phase 6: SymbolDetailView modal will be inserted here -->
-    <Teleport to="body">
-      <div v-if="selectedSymbol" aria-hidden="true" />
-      <!-- SymbolDetailView :symbol-name="selectedSymbol" @close="selectedSymbol = null" -->
-    </Teleport>
+    <SymbolDetailModal
+      v-if="selectedSymbol"
+      :symbol-name="selectedSymbol"
+      :symbols="store.symbols"
+      :symbol-values="store.symbolValues"
+      :symbol-history="store.symbolHistory"
+      @close="selectedSymbol = null"
+    />
 
   </div>
 </template>
