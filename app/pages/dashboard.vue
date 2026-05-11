@@ -7,7 +7,7 @@
         <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
           Industrial Data Monitor
         </h1>
-        <!-- Phase 7: UserMenu / Settings here -->
+        <UserMenu />
       </div>
     </header>
 
@@ -60,18 +60,31 @@
         >Dismiss</button>
       </div>
 
-      <!-- Initial loading skeleton -->
+      <!-- Loading skeleton (replaces raw spinner) -->
       <div
         v-if="store.isLoading"
-        class="flex items-center justify-center py-24 text-gray-400 dark:text-gray-500"
         role="status"
+        aria-label="Loading symbols"
         aria-live="polite"
+        class="space-y-2"
       >
-        <svg class="mr-3 h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-        </svg>
-        Loading symbols…
+        <!-- Search bar skeleton -->
+        <div class="h-10 w-64 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+        <!-- Table skeleton -->
+        <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="h-11 bg-gray-100 dark:bg-gray-700/50" />
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="flex items-center gap-6 border-t border-gray-100 px-4 py-3 dark:border-gray-700"
+          >
+            <div class="h-4 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div class="h-4 w-14 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div class="h-4 w-10 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div class="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div class="ml-auto h-5 w-16 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
+          </div>
+        </div>
       </div>
 
       <template v-else>
@@ -113,11 +126,13 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
 import { useSymbolsStore } from '~/stores/symbols'
+import { usePreferencesStore } from '~/stores/preferences'
 import { usePolling } from '~/composables/usePolling'
 import type { PollingInterval } from '~/types/api'
 
 const auth = useAuthStore()
 const store = useSymbolsStore()
+const prefs = usePreferencesStore()
 const router = useRouter()
 
 const selectedSymbol = ref<string | null>(null)
@@ -152,7 +167,7 @@ onMounted(async () => {
   await store.fetchSymbols()
   if (store.symbols.length > 0) {
     await store.fetchAllValues() // populate values before first interval fires
-    start()
+    if (prefs.autoStartPolling) start()
   }
 })
 
