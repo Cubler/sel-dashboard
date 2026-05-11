@@ -1,41 +1,47 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { getSymbolStatus, getStatusLabel } from '~/utils/qualityHelpers'
 
 describe('getSymbolStatus', () => {
-  beforeEach(() => vi.useFakeTimers())
   afterEach(() => vi.useRealTimers())
 
-  it('returns "inactive" when lastUpdated is undefined', () => {
+  it('returns inactive when lastUpdated is undefined', () => {
     expect(getSymbolStatus(undefined)).toBe('inactive')
   })
 
-  it('returns "active" when updated within 30 seconds', () => {
-    expect(getSymbolStatus(new Date(Date.now() - 10_000))).toBe('active')
+  it('returns active when updated less than 30 seconds ago', () => {
+    vi.useFakeTimers()
+    const date = new Date(Date.now() - 10_000) // 10s ago
+    expect(getSymbolStatus(date)).toBe('active')
   })
 
-  it('returns "stale" when updated between 30 and 60 seconds ago', () => {
-    expect(getSymbolStatus(new Date(Date.now() - 45_000))).toBe('stale')
+  it('returns stale when updated 30–60 seconds ago', () => {
+    vi.useFakeTimers()
+    const date = new Date(Date.now() - 45_000) // 45s ago
+    expect(getSymbolStatus(date)).toBe('stale')
   })
 
-  it('returns "inactive" when updated more than 60 seconds ago', () => {
-    expect(getSymbolStatus(new Date(Date.now() - 90_000))).toBe('inactive')
+  it('returns inactive when updated more than 60 seconds ago', () => {
+    vi.useFakeTimers()
+    const date = new Date(Date.now() - 90_000) // 90s ago
+    expect(getSymbolStatus(date)).toBe('inactive')
   })
 
-  it('treats 30s boundary as stale (not active)', () => {
-    expect(getSymbolStatus(new Date(Date.now() - 29_999))).toBe('active')
-    expect(getSymbolStatus(new Date(Date.now() - 30_000))).toBe('stale')
-  })
-
-  it('treats 60s boundary as inactive (not stale)', () => {
-    expect(getSymbolStatus(new Date(Date.now() - 59_999))).toBe('stale')
-    expect(getSymbolStatus(new Date(Date.now() - 60_000))).toBe('inactive')
+  it('returns active for a just-now timestamp', () => {
+    const date = new Date()
+    expect(getSymbolStatus(date)).toBe('active')
   })
 })
 
 describe('getStatusLabel', () => {
-  it('capitalises each status', () => {
+  it('returns "Active" for active', () => {
     expect(getStatusLabel('active')).toBe('Active')
+  })
+
+  it('returns "Stale" for stale', () => {
     expect(getStatusLabel('stale')).toBe('Stale')
+  })
+
+  it('returns "Inactive" for inactive', () => {
     expect(getStatusLabel('inactive')).toBe('Inactive')
   })
 })

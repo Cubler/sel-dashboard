@@ -5,37 +5,22 @@ import { reactive } from 'vue'
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 const mockLogin = vi.fn()
-// Use reactive() so Vue unwraps properties in templates (mirrors what Pinia does)
-const mockAuthState = reactive({
-  loading: false,
-  error: null as { message: string } | null,
+// Use reactive() so Vue unwraps properties in templates
+const mockPollingState = reactive({
+  authLoading: false,
+  authError: null as { message: string } | null,
   login: mockLogin,
   init: vi.fn(), // needed by auth.client.ts plugin
   logout: vi.fn(),
 })
 
-vi.mock('~/stores/auth', () => ({
-  useAuthStore: () => mockAuthState,
+vi.mock('~/composables/useSymbolPolling', () => ({
+  useSymbolPolling: () => mockPollingState,
 }))
 
 // Prevent theme.client.ts plugin from crashing when it calls prefs.init()
 vi.mock('~/stores/preferences', () => ({
   usePreferencesStore: () => ({ theme: 'auto', autoStartPolling: true, init: vi.fn(), applyTheme: vi.fn() }),
-}))
-
-vi.mock('~/services/storageService', () => ({
-  storageService: {
-    getToken: vi.fn(() => null),
-    getTokenExpiry: vi.fn(() => null),
-    getUsername: vi.fn(() => null),
-    getServerUrl: vi.fn(() => null),
-    setToken: vi.fn(),
-    setTokenExpiry: vi.fn(),
-    setUsername: vi.fn(),
-    setServerUrl: vi.fn(),
-    clearCredentials: vi.fn(),
-    clearAuth: vi.fn(),
-  },
 }))
 
 const mockRouterPush = vi.fn()
@@ -78,8 +63,8 @@ async function fillForm(
 describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockAuthState.loading = false
-    mockAuthState.error = null
+    mockPollingState.authLoading = false
+    mockPollingState.authError = null
     mockLogin.mockResolvedValue(true)
   })
 
@@ -123,7 +108,7 @@ describe('LoginForm', () => {
     expect(wrapper.text()).toContain('Password is required')
   })
 
-  it('calls auth.login with the correct credentials on valid submit', async () => {
+  it('calls login with the correct credentials on valid submit', async () => {
     const wrapper = mountForm()
     await fillForm(wrapper)
     await wrapper.find('form').trigger('submit')
@@ -145,15 +130,15 @@ describe('LoginForm', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/dashboard')
   })
 
-  it('displays the auth error message from the store', async () => {
-    mockAuthState.error = { message: 'Invalid credentials' }
+  it('displays the auth error message', async () => {
+    mockPollingState.authError = { message: 'Invalid credentials' }
     const wrapper = mountForm()
     await flushPromises()
     expect(wrapper.text()).toContain('Invalid credentials')
   })
 
   it('disables the submit button while loading', async () => {
-    mockAuthState.loading = true
+    mockPollingState.authLoading = true
     const wrapper = mountForm()
     const btn = wrapper.find('button[type="submit"]')
     expect(btn.attributes('disabled')).toBeDefined()

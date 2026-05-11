@@ -1,5 +1,4 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios'
-import { storageService } from './storageService'
 import type {
   AuthCredentials,
   AuthTokenResponse,
@@ -9,6 +8,9 @@ import type {
   ApiSymbolValue,
   ApiError,
 } from '~/types/api'
+
+const TOKEN_KEY = 'sel:token'
+const TOKEN_EXPIRY_KEY = 'sel:tokenExpiry'
 
 export interface ApiServiceConfig {
   baseURL: string
@@ -27,15 +29,15 @@ export class SELApiService {
     })
 
     // Restore persisted session so refreshes don't log the user out
-    this.token = storageService.getToken()
-    this.tokenExpiry = storageService.getTokenExpiry()
+    this.token = localStorage.getItem(TOKEN_KEY)
+    const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY)
+    this.tokenExpiry = expiry ? Number(expiry) : null
 
     this.setupInterceptors()
   }
 
   private setupInterceptors(): void {
     // Inject Bearer token on every request unless the caller already set Authorization
-    // (authenticate() sets its own Basic header and must not be overwritten)
     this.client.interceptors.request.use((config) => {
       if (this.token && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${this.token}`
@@ -71,14 +73,15 @@ export class SELApiService {
   setToken(token: string, expiresIn: number): void {
     this.token = token
     this.tokenExpiry = Date.now() + expiresIn * 1_000
-    storageService.setToken(token)
-    storageService.setTokenExpiry(this.tokenExpiry)
+    localStorage.setItem(TOKEN_KEY, token)
+    localStorage.setItem(TOKEN_EXPIRY_KEY, String(this.tokenExpiry))
   }
 
   clearToken(): void {
     this.token = null
     this.tokenExpiry = null
-    storageService.clearAuth()
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(TOKEN_EXPIRY_KEY)
   }
 
   isTokenValid(): boolean {

@@ -15,13 +15,10 @@
     <div class="border-b border-gray-200 bg-gray-100 px-4 py-2 dark:border-gray-700 dark:bg-gray-800/60">
       <div class="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between gap-2">
         <div class="flex flex-wrap items-center gap-3 text-sm">
-          <ConnectionIndicator
-            :status="store.connectionStatus"
-            :last-updated="store.lastUpdated"
-          />
+          <ConnectionIndicator :status="connectionStatus" />
           <span class="text-gray-300 dark:text-gray-600">|</span>
-          <span class="text-gray-600 dark:text-gray-400">User: {{ auth.username }}</span>
-          <span v-if="auth.serverUrl" class="text-gray-600 dark:text-gray-400">
+          <span class="text-gray-600 dark:text-gray-400">User: {{ username }}</span>
+          <span v-if="serverUrl" class="text-gray-600 dark:text-gray-400">
             Server: {{ displayServer }}
           </span>
         </div>
@@ -29,8 +26,8 @@
         <div class="flex items-center gap-2 text-sm">
           <button
             class="rounded px-2 py-1 text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700"
-            :disabled="store.isLoading"
-            @click="store.fetchAllValues()"
+            :disabled="isLoading"
+            @click="fetchAllValues()"
           >
             Refresh
           </button>
@@ -49,60 +46,56 @@
 
       <!-- Fetch error banner -->
       <div
-        v-if="store.error"
+        v-if="fetchError"
         role="alert"
         class="mb-4 flex items-start justify-between gap-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
       >
-        <span>{{ store.error.message }}</span>
-        <button
-          class="shrink-0 font-medium underline"
-          @click="store.error = null"
-        >Dismiss</button>
+        <span>{{ fetchError.message }}</span>
+        <button class="shrink-0 font-medium underline" @click="dismissError">Dismiss</button>
       </div>
 
-      <!-- Loading skeleton (replaces raw spinner) -->
+      <!-- Loading spinner -->
       <div
-        v-if="store.isLoading"
+        v-if="isLoading"
         role="status"
         aria-label="Loading symbols"
-        aria-live="polite"
-        class="space-y-2"
+        class="flex justify-center py-16"
       >
-        <!-- Search bar skeleton -->
-        <div class="h-10 w-64 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
-        <!-- Table skeleton -->
-        <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-          <div class="h-11 bg-gray-100 dark:bg-gray-700/50" />
-          <div
-            v-for="i in 8"
-            :key="i"
-            class="flex items-center gap-6 border-t border-gray-100 px-4 py-3 dark:border-gray-700"
-          >
-            <div class="h-4 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-            <div class="h-4 w-14 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-            <div class="h-4 w-10 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-            <div class="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-            <div class="ml-auto h-5 w-16 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
-          </div>
-        </div>
+        <svg class="h-8 w-8 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
       </div>
 
       <template v-else>
-        <!-- Polling controls row -->
-        <div class="mb-4 flex items-center justify-end">
-          <PollingControls
-            :is-polling="isPolling"
-            :interval="store.pollingInterval"
-            @start="handleStartPolling"
-            @stop="handleStopPolling"
-            @change-interval="handleIntervalChange"
-          />
+        <!-- Polling controls -->
+        <div class="mb-4 flex items-center justify-end gap-2">
+          <button
+            :class="isPolling
+              ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50'
+              : 'bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-500'"
+            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @click="isPolling ? stop() : start()"
+          >
+            {{ isPolling ? 'Stop Polling' : 'Start Polling' }}
+          </button>
+          <select
+            :value="pollingInterval"
+            aria-label="Polling interval"
+            class="rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+            @change="handleIntervalChange(Number(($event.target as HTMLSelectElement).value))"
+          >
+            <option :value="1000">1s</option>
+            <option :value="2000">2s</option>
+            <option :value="5000">5s</option>
+            <option :value="10000">10s</option>
+          </select>
         </div>
 
         <!-- Symbol table -->
         <SymbolTable
-          :symbols="store.symbols"
-          :symbol-values="store.symbolValues"
+          :symbols="symbols"
+          :symbol-values="symbolValues"
           @select="selectedSymbol = $event"
         />
       </template>
@@ -111,9 +104,9 @@
     <SymbolDetailModal
       v-if="selectedSymbol"
       :symbol-name="selectedSymbol"
-      :symbols="store.symbols"
-      :symbol-values="store.symbolValues"
-      :symbol-history="store.symbolHistory"
+      :symbols="symbols"
+      :symbol-values="symbolValues"
+      :symbol-history="symbolHistory"
       @close="selectedSymbol = null"
     />
 
@@ -123,50 +116,45 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { useAuthStore } from '~/stores/auth'
-import { useSymbolsStore } from '~/stores/symbols'
 import { usePreferencesStore } from '~/stores/preferences'
+import { useSymbolPolling } from '~/composables/useSymbolPolling'
 import { usePolling } from '~/composables/usePolling'
 import type { PollingInterval } from '~/types/api'
 
-const auth = useAuthStore()
-const store = useSymbolsStore()
+const {
+  username, serverUrl, symbols, symbolValues, symbolHistory,
+  connectionStatus, isLoading, fetchError, pollingInterval,
+  fetchSymbols, fetchAllValues, clearData, logout,
+} = useSymbolPolling()
+
 const prefs = usePreferencesStore()
 const router = useRouter()
 
 const selectedSymbol = ref<string | null>(null)
 
 const displayServer = computed(() => {
-  try { return new URL(auth.serverUrl).hostname }
-  catch { return auth.serverUrl }
+  try { return new URL(serverUrl.value).hostname }
+  catch { return serverUrl.value }
 })
+
+function dismissError() {
+  fetchError.value = null
+}
 
 // ── Polling ───────────────────────────────────────────────────────────────────
 
-// storeToRefs keeps pollingInterval reactive so usePolling's watch can restart on change
-const { pollingInterval } = storeToRefs(store)
-const { isPolling, start, stop } = usePolling(store.fetchAllValues, pollingInterval)
-
-function handleStartPolling() {
-  start()
-}
-
-function handleStopPolling() {
-  stop()
-}
+const { isPolling, start, stop } = usePolling(fetchAllValues, pollingInterval)
 
 function handleIntervalChange(ms: number) {
-  store.pollingInterval = ms as PollingInterval
-  // The watch inside usePolling restarts the timer automatically
+  pollingInterval.value = ms as PollingInterval
 }
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
-  await store.fetchSymbols()
-  if (store.symbols.length > 0) {
-    await store.fetchAllValues() // populate values before first interval fires
+  await fetchSymbols()
+  if (symbols.value.length > 0) {
+    await fetchAllValues()
     if (prefs.autoStartPolling) start()
   }
 })
@@ -175,8 +163,8 @@ onMounted(async () => {
 
 function handleLogout() {
   stop()
-  store.clearData()
-  auth.logout()
+  clearData()
+  logout()
   router.push('/login')
 }
 </script>

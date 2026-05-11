@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for components/SymbolHistoryChart.vue</title>
+    <title>Code coverage report for composables/useSymbolPolling.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">components</a> SymbolHistoryChart.vue</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">composables</a> useSymbolPolling.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.17% </span>
+                <span class="strong">97.14% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>34/39</span>
+                <span class='fraction'>68/70</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">74.07% </span>
+                <span class="strong">78.57% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>20/27</span>
+                <span class='fraction'>11/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.3% </span>
+                <span class="strong">90.9% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>12/13</span>
+                <span class='fraction'>10/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90.32% </span>
+                <span class="strong">97.1% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>28/31</span>
+                <span class='fraction'>67/69</span>
             </div>
         
             
@@ -195,270 +195,345 @@
 <a name='L130'></a><a href='#L130'>130</a>
 <a name='L131'></a><a href='#L131'>131</a>
 <a name='L132'></a><a href='#L132'>132</a>
-<a name='L133'></a><a href='#L133'>133</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">17x</span>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">17x</span>
-<span class="cline-any cline-yes">17x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&lt;template&gt;
-  &lt;div class="relative h-48 w-full"&gt;
-    &lt;canvas v-show="hasEnoughData" ref="canvasRef" /&gt;
-    &lt;div
-      v-if="!hasEnoughData"
-      class="absolute inset-0 flex flex-col items-center justify-center gap-1 text-sm text-gray-400 dark:text-gray-500"
-    &gt;
-      &lt;svg class="h-8 w-8 opacity-40" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"&gt;
-        &lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /&gt;
-      &lt;/svg&gt;
-      &lt;span&gt;Collecting data… ({{ dataPoints.length }}&amp;thinsp;/&amp;thinsp;2 points)&lt;/span&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/template&gt;
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { reactive, ref } from 'vue'
+import { apiService } from '~/services/apiService'
+import type {
+  ApiError,
+  AuthCredentials,
+  ConnectionStatus,
+  PollingInterval,
+  Symbol,
+  SymbolHistory,
+  SymbolHistoryPoint,
+  SymbolValue,
+} from '~/types/api'
 &nbsp;
-&lt;script setup lang="ts"&gt;
-import { computed, nextTick, onMounted, onUnmounted, watch, ref } from 'vue'
-import {
-  Chart,
-  LineElement,
-  PointElement,
-  LinearScale,
-  CategoryScale,
-  Tooltip,
-  Filler,
-} from 'chart.js'
-import type { SymbolHistory } from '~/types/api'
+const MAX_HISTORY_POINTS = 50
+const MAX_HISTORY_MS = 5 * 60 * 1_000
 &nbsp;
-Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler)
+// Module-level shared state — all callers share the same refs (singleton pattern)
+const isAuthenticated = ref(false)
+const username = ref('')
+const serverUrl = ref('')
+const authError = ref&lt;ApiError | null&gt;(null)
+const authLoading = ref(false)
 &nbsp;
-const props = defineProps&lt;{ history: SymbolHistory | undefined }&gt;()
+const symbols = ref&lt;Symbol[]&gt;([])
+const symbolValues = reactive(new Map&lt;string, SymbolValue&gt;())
+const symbolHistory = reactive(new Map&lt;string, SymbolHistory&gt;())
+const isLoading = ref(false)
+const fetchError = ref&lt;ApiError | null&gt;(null)
+const lastUpdated = ref&lt;Date | null&gt;(null)
+const connectionStatus = ref&lt;ConnectionStatus&gt;({ isConnected: false })
+const pollingInterval = ref&lt;PollingInterval&gt;(2000)
 &nbsp;
-const canvasRef = ref&lt;HTMLCanvasElement | null&gt;(null)
-let chartInstance: Chart | null = null
-&nbsp;
-const dataPoints = computed(() =&gt; props.history?.dataPoints ?? [])
-const hasEnoughData = computed(() =&gt; dataPoints.value.length &gt;= 2)
-&nbsp;
-function isDarkMode(): boolean {
-  return (
-    document.documentElement.classList.contains('dark')
-    || (!document.documentElement.classList.contains('light')
-      &amp;&amp; window.matchMedia('(prefers-color-scheme: dark)').matches)
-  )
-}
-&nbsp;
-function chartColors() {
-  const dark = isDarkMode()
-  return {
-    line: dark ? <span class="branch-0 cbranch-no" title="branch not covered" >'#60a5fa' : '</span>#3b82f6',
-    fill: dark ? <span class="branch-0 cbranch-no" title="branch not covered" >'rgba(96, 165, 250, 0.1)' : '</span>rgba(59, 130, 246, 0.1)',
-    grid: dark ? <span class="branch-0 cbranch-no" title="branch not covered" >'#374151' : '</span>#e5e7eb',
-    tick: dark ? <span class="branch-0 cbranch-no" title="branch not covered" >'#9ca3af' : '</span>#6b7280',
+export function useSymbolPolling() {
+  function init(): void {
+    if (apiService.isTokenValid()) {
+      isAuthenticated.value = true
+      username.value = localStorage.getItem('sel:username') ?? <span class="branch-1 cbranch-no" title="branch not covered" >''</span>
+      serverUrl.value = localStorage.getItem('sel:serverUrl') ?? <span class="branch-1 cbranch-no" title="branch not covered" >''</span>
+    }
   }
-}
 &nbsp;
-function createChart(): void {
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (!canvasRef.value || dataPoints.value.length &lt; 2) <span class="cstat-no" title="statement not covered" >return</span>
+  async function login(credentials: AuthCredentials): Promise&lt;boolean&gt; {
+    authLoading.value = true
+    authError.value = null
+    try {
+      await apiService.authenticate(credentials)
+      isAuthenticated.value = true
+      username.value = credentials.username
+      serverUrl.value = credentials.serverUrl
+      return true
+    }
+    catch (err) {
+      authError.value = err as ApiError
+      return false
+    }
+    finally {
+      authLoading.value = false
+    }
+  }
 &nbsp;
-  const points = dataPoints.value
-  const colors = chartColors()
+  function logout(): void {
+    apiService.clearToken()
+    isAuthenticated.value = false
+    username.value = ''
+    serverUrl.value = ''
+    authError.value = null
+  }
 &nbsp;
-  chartInstance = new Chart(canvasRef.value, {
-    type: 'line',
-    data: {
-      labels: points.map(p =&gt; p.formattedTime),
-      datasets: [{
-        data: points.map(p =&gt; p.value),
-        borderColor: colors.line,
-        backgroundColor: colors.fill,
-        borderWidth: 2,
-        pointRadius: 2,
-        pointHoverRadius: 4,
-        fill: true,
-        tension: 0.3,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: <span class="fstat-no" title="function not covered" >ctx =&gt; <span class="cstat-no" title="statement not covered" >`</span>Value: ${ctx.parsed.y}`,</span>
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: { maxTicksLimit: 6, color: colors.tick, font: { size: 11 } },
-          grid: { color: colors.grid },
-        },
-        y: {
-          ticks: { color: colors.tick, font: { size: 11 } },
-          grid: { color: colors.grid },
-        },
-      },
-    },
-  })
-}
+  async function fetchSymbols(): Promise&lt;void&gt; {
+    isLoading.value = true
+    fetchError.value = null
+    try {
+      symbols.value = await apiService.getSymbols({ sort: 'asc', limit: 50 })
+    }
+    catch (err) {
+      fetchError.value = err as ApiError
+    }
+    finally {
+      isLoading.value = false
+    }
+  }
 &nbsp;
-// Reactively update the chart as new poll data arrives
-watch(
-  dataPoints,
-  (points) =&gt; {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (points.length &lt; 2) <span class="cstat-no" title="statement not covered" >return</span>
+  async function fetchAllValues(): Promise&lt;void&gt; {
+    if (symbols.value.length === 0) return
 &nbsp;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!chartInstance) {
-<span class="cstat-no" title="statement not covered" >      nextTick(createChart)</span>
-<span class="cstat-no" title="statement not covered" >      return</span>
+    const results = await Promise.allSettled(
+      symbols.value.map(s =&gt; apiService.getSymbolValue(s.name)),
+    )
+&nbsp;
+    const now = new Date()
+    let successCount = 0
+&nbsp;
+    results.forEach((result, i) =&gt; {
+      const symbolName = symbols.value[i]!.name
+      if (result.status === 'fulfilled') {
+        symbolValues.set(symbolName, result.value)
+        addToHistory(symbolName, result.value.stVal, now)
+        successCount++
+      }
+    })
+&nbsp;
+    lastUpdated.value = now
+    connectionStatus.value = { isConnected: successCount &gt; 0, lastConnection: now }
+  }
+&nbsp;
+  function addToHistory(symbolName: string, value: number, timestamp: Date): void {
+    const existing: SymbolHistory = symbolHistory.get(symbolName) ?? {
+      symbolName,
+      dataPoints: [],
+      maxPoints: MAX_HISTORY_POINTS,
     }
 &nbsp;
-    // Update data in-place — no destroy/recreate, no animation flash
-    chartInstance.data.labels = points.map(p =&gt; p.formattedTime)
-    chartInstance.data.datasets[0]!.data = points.map(p =&gt; p.value)
-    chartInstance.update('none')
-  },
-  { deep: true },
-)
+    const cutoff = Date.now() - MAX_HISTORY_MS
+    const dataPoints: SymbolHistoryPoint[] = existing.dataPoints.filter(
+<span class="fstat-no" title="function not covered" >      p =&gt; <span class="cstat-no" title="statement not covered" >p</span>.timestamp.getTime() &gt; cutoff,</span>
+    )
 &nbsp;
-onMounted(() =&gt; {
-  if (hasEnoughData.value) createChart()
-})
+    dataPoints.push({ value, timestamp, formattedTime: timestamp.toLocaleTimeString() })
 &nbsp;
-// Critical: canvas holds a WebGL/2D context that leaks without explicit cleanup
-onUnmounted(() =&gt; {
-  chartInstance?.destroy()
-  chartInstance = null
-})
-&lt;/script&gt;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (dataPoints.length &gt; MAX_HISTORY_POINTS) {
+<span class="cstat-no" title="statement not covered" >      dataPoints.splice(0, dataPoints.length - MAX_HISTORY_POINTS)</span>
+    }
+&nbsp;
+    symbolHistory.set(symbolName, { ...existing, dataPoints })
+  }
+&nbsp;
+  function clearData(): void {
+    symbols.value = []
+    symbolValues.clear()
+    symbolHistory.clear()
+    lastUpdated.value = null
+    fetchError.value = null
+    connectionStatus.value = { isConnected: false }
+  }
+&nbsp;
+  return {
+    isAuthenticated,
+    username,
+    serverUrl,
+    authError,
+    authLoading,
+    symbols,
+    symbolValues,
+    symbolHistory,
+    isLoading,
+    fetchError,
+    lastUpdated,
+    connectionStatus,
+    pollingInterval,
+    init,
+    login,
+    logout,
+    fetchSymbols,
+    fetchAllValues,
+    clearData,
+  }
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -466,7 +541,7 @@ onUnmounted(() =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-11T04:24:41.561Z
+                at 2026-05-11T13:40:38.517Z
             </div>
         <script src="../prettify.js"></script>
         <script>

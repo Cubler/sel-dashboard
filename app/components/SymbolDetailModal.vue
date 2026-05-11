@@ -59,8 +59,26 @@
                 </div>
 
                 <div class="flex flex-col items-end gap-2">
-                  <StatusBadge :status="symbolStatus" />
-                  <QualityBadge :validity="validity" />
+                  <!-- Status badge (inlined) -->
+                  <span
+                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                    :class="{
+                      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': symbolStatus === 'active',
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': symbolStatus === 'stale',
+                      'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400': symbolStatus === 'inactive',
+                    }"
+                  >{{ symbolStatus === 'active' ? 'Active' : symbolStatus === 'stale' ? 'Stale' : 'Inactive' }}</span>
+
+                  <!-- Quality badge (inlined) -->
+                  <span
+                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                    :class="{
+                      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': validity === 'good',
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': validity === 'questionable',
+                      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': validity === 'invalid',
+                    }"
+                  >{{ validity === 'good' ? 'Good' : validity === 'questionable' ? 'Questionable' : 'Invalid' }}</span>
+
                   <span
                     v-if="range !== 'normal'"
                     class="inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
@@ -71,13 +89,24 @@
               </div>
             </section>
 
-            <!-- History chart -->
+            <!-- History chart (inlined) -->
             <section>
               <h3 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Value History (5 min)
               </h3>
               <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
-                <SymbolHistoryChart :history="history" />
+                <div class="relative h-48 w-full">
+                  <canvas v-show="hasEnoughData" ref="canvasRef" />
+                  <div
+                    v-if="!hasEnoughData"
+                    class="absolute inset-0 flex flex-col items-center justify-center gap-1 text-sm text-gray-400 dark:text-gray-500"
+                  >
+                    <svg class="h-8 w-8 opacity-40" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                    <span>Collecting data… ({{ dataPoints.length }}&thinsp;/&thinsp;2 points)</span>
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -127,14 +156,6 @@
                 <QualityIndicator
                   :ok="!operatorBlocked"
                   :label="operatorBlocked ? 'Operator blocked' : 'Not blocked'"
-                />
-                <QualityIndicator
-                  :ok="!testMode"
-                  :label="testMode ? 'Test mode active' : 'Live (not test)'"
-                />
-                <QualityIndicator
-                  :ok="!clockFailure"
-                  :label="clockFailure ? 'Clock failure' : 'No clock failure'"
                 />
                 <QualityIndicator
                   :ok="!clockNotSynchronized"
@@ -191,10 +212,21 @@ export { QualityIndicator }
 </script>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+  Chart,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Filler,
+} from 'chart.js'
 import type { QualityValidity, Symbol, SymbolHistory, SymbolValue } from '~/types/api'
 import { getSymbolStatus } from '~/utils/qualityHelpers'
 import { formatTimestamp, formatRelativeTime, formatFullTimestamp } from '~/utils/dateHelpers'
+
+Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler)
 
 const props = defineProps<{
   symbolName: string
@@ -212,25 +244,15 @@ const value = computed(() => props.symbolValues.get(props.symbolName))
 const history = computed(() => props.symbolHistory.get(props.symbolName))
 const symbolStatus = computed(() => getSymbolStatus(value.value?.lastUpdated))
 
-function raw<T>(path: string[]): T | undefined {
-  let cursor: unknown = value.value?.rawData
-  for (const key of path) {
-    if (typeof cursor !== 'object' || cursor === null) return undefined
-    cursor = (cursor as Record<string, unknown>)[key]
-  }
-  return cursor as T | undefined
-}
-
-const units = computed(() => raw<string>(['units']) ?? '')
-const range = computed(() => raw<string>(['range']) ?? 'normal')
-const multiplier = computed(() => raw<number>(['multiplier']) ?? 1.0)
-const description = computed(() => raw<string>(['d']) ?? symbolMeta.value?.description ?? '')
-const validity = computed(() => raw<QualityValidity>(['q', 'validity']) ?? 'invalid')
-const qSource = computed(() => raw<string>(['q', 'source']) ?? 'unknown')
-const operatorBlocked = computed(() => raw<boolean>(['q', 'operatorBlocked']) ?? false)
-const testMode = computed(() => raw<boolean>(['q', 'test']) ?? false)
-const clockNotSynchronized = computed(() => raw<boolean>(['t', 'clockNotSynchronized']) ?? false)
-const clockFailure = computed(() => raw<boolean>(['t', 'clockFailure']) ?? false)
+const rd = computed(() => value.value?.rawData as any)
+const units = computed(() => (rd.value?.units as string | undefined) ?? '')
+const range = computed(() => (rd.value?.range as string | undefined) ?? 'normal')
+const multiplier = computed(() => (rd.value?.multiplier as number | undefined) ?? 1.0)
+const description = computed(() => (rd.value?.d as string | undefined) ?? symbolMeta.value?.description ?? '')
+const validity = computed(() => (rd.value?.q?.validity as QualityValidity | undefined) ?? 'invalid')
+const qSource = computed(() => (rd.value?.q?.source as string | undefined) ?? 'unknown')
+const operatorBlocked = computed(() => (rd.value?.q?.operatorBlocked as boolean | undefined) ?? false)
+const clockNotSynchronized = computed(() => (rd.value?.t?.clockNotSynchronized as boolean | undefined) ?? false)
 
 interface DetailQual {
   overflow: boolean; outOfRange: boolean; badReference: boolean; oscillatory: boolean
@@ -244,12 +266,85 @@ const DETAIL_QUAL_LABELS: Record<keyof DetailQual, string> = {
 }
 
 const activeDetailFlags = computed<string[]>(() => {
-  const dq = raw<DetailQual>(['q', 'detailQual'])
+  const dq = rd.value?.q?.detailQual as DetailQual | undefined
   if (!dq) return []
   return (Object.entries(dq) as [keyof DetailQual, boolean][])
     .filter(([, v]) => v)
     .map(([k]) => DETAIL_QUAL_LABELS[k])
 })
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+
+const canvasRef = ref<HTMLCanvasElement | null>(null)
+let chartInstance: Chart | null = null
+
+const dataPoints = computed(() => history.value?.dataPoints ?? [])
+const hasEnoughData = computed(() => dataPoints.value.length >= 2)
+
+function isDarkMode(): boolean {
+  return (
+    document.documentElement.classList.contains('dark')
+    || (!document.documentElement.classList.contains('light')
+      && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  )
+}
+
+function chartColors() {
+  const dark = isDarkMode()
+  return {
+    line: dark ? '#60a5fa' : '#3b82f6',
+    fill: dark ? 'rgba(96, 165, 250, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+    grid: dark ? '#374151' : '#e5e7eb',
+    tick: dark ? '#9ca3af' : '#6b7280',
+  }
+}
+
+function createChart(): void {
+  if (!canvasRef.value || dataPoints.value.length < 2) return
+  const points = dataPoints.value
+  const colors = chartColors()
+  chartInstance = new Chart(canvasRef.value, {
+    type: 'line',
+    data: {
+      labels: points.map(p => p.formattedTime),
+      datasets: [{
+        data: points.map(p => p.value),
+        borderColor: colors.line,
+        backgroundColor: colors.fill,
+        borderWidth: 2,
+        pointRadius: 2,
+        pointHoverRadius: 4,
+        fill: true,
+        tension: 0.3,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `Value: ${ctx.parsed.y}` } },
+      },
+      scales: {
+        x: { ticks: { maxTicksLimit: 6, color: colors.tick, font: { size: 11 } }, grid: { color: colors.grid } },
+        y: { ticks: { color: colors.tick, font: { size: 11 } }, grid: { color: colors.grid } },
+      },
+    },
+  })
+}
+
+watch(
+  dataPoints,
+  (points) => {
+    if (points.length < 2) return
+    if (!chartInstance) { nextTick(createChart); return }
+    chartInstance.data.labels = points.map(p => p.formattedTime)
+    chartInstance.data.datasets[0]!.data = points.map(p => p.value)
+    chartInstance.update('none')
+  },
+  { deep: true },
+)
 
 // ── Focus management ──────────────────────────────────────────────────────────
 
@@ -261,11 +356,14 @@ onMounted(() => {
   previousFocus.value = document.activeElement as HTMLElement
   nextTick(() => closeBtnRef.value?.focus())
   document.addEventListener('keydown', handleKeydown)
+  if (hasEnoughData.value) createChart()
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
   previousFocus.value?.focus()
+  chartInstance?.destroy()
+  chartInstance = null
 })
 
 function handleKeydown(e: KeyboardEvent): void {

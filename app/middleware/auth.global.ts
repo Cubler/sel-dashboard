@@ -1,10 +1,10 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const auth = useAuthStore()
+import { apiService } from '~/services/apiService'
 
-  if (to.path !== '/login' && !auth.isAuthenticated) {
+export default defineNuxtRouteMiddleware((to) => {
+  if (to.path !== '/login' && !apiService.isTokenValid()) {
     return navigateTo('/login')
   }
-  if (to.path === '/login' && auth.isAuthenticated) {
+  if (to.path === '/login' && apiService.isTokenValid()) {
     return navigateTo('/dashboard')
   }
 })

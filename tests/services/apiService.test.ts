@@ -22,17 +22,6 @@ vi.mock('axios', () => ({
   },
 }))
 
-const { mockStorage } = vi.hoisted(() => ({
-  mockStorage: {
-    getToken: vi.fn(() => null as string | null),
-    getTokenExpiry: vi.fn(() => null as number | null),
-    setToken: vi.fn(),
-    setTokenExpiry: vi.fn(),
-    clearAuth: vi.fn(),
-  },
-}))
-vi.mock('~/services/storageService', () => ({ storageService: mockStorage }))
-
 // ── Imports after mocks ───────────────────────────────────────────────────────
 
 import { SELApiService } from '~/services/apiService'
@@ -56,9 +45,16 @@ describe('SELApiService', () => {
   let service: SELApiService
   let requestInterceptor: (config: Record<string, unknown>) => Record<string, unknown>
   let responseErrorHandler: (error: unknown) => never
+  let setItemSpy: ReturnType<typeof vi.spyOn>
+  let removeItemSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
     vi.clearAllMocks()
+
+    // Spy on localStorage so we can assert token persistence without the storageService wrapper
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
+    setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {})
+    removeItemSpy = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {})
 
     // Capture interceptors when they are registered
     mockRequestUse.mockImplementation((fn: typeof requestInterceptor) => {
@@ -90,15 +86,16 @@ describe('SELApiService', () => {
 
     it('setToken persists to localStorage', () => {
       service.setToken('abc', 3600)
-      expect(mockStorage.setToken).toHaveBeenCalledWith('abc')
-      expect(mockStorage.setTokenExpiry).toHaveBeenCalledWith(expect.any(Number))
+      expect(setItemSpy).toHaveBeenCalledWith('sel:token', 'abc')
+      expect(setItemSpy).toHaveBeenCalledWith('sel:tokenExpiry', expect.any(String))
     })
 
     it('clearToken removes from memory and localStorage', () => {
       service.setToken('tok', 3600)
       service.clearToken()
       expect(service.isTokenValid()).toBe(false)
-      expect(mockStorage.clearAuth).toHaveBeenCalled()
+      expect(removeItemSpy).toHaveBeenCalledWith('sel:token')
+      expect(removeItemSpy).toHaveBeenCalledWith('sel:tokenExpiry')
     })
   })
 
@@ -118,7 +115,7 @@ describe('SELApiService', () => {
 
       expect(result).toBe(true)
       expect(service.isTokenValid()).toBe(true)
-      expect(mockStorage.setToken).toHaveBeenCalledWith('tok-123')
+      expect(setItemSpy).toHaveBeenCalledWith('sel:token', 'tok-123')
     })
 
     it('sends the correct Basic Auth header', async () => {
@@ -139,9 +136,8 @@ describe('SELApiService', () => {
         service.authenticate({ serverUrl: 'https://test', username: 'bad', password: 'bad' }),
       ).rejects.toBeTruthy()
 
-      // Token must not be stored when auth fails
       expect(service.isTokenValid()).toBe(false)
-      expect(mockStorage.setToken).not.toHaveBeenCalled()
+      expect(setItemSpy).not.toHaveBeenCalledWith('sel:token', expect.anything())
     })
   })
 
@@ -244,7 +240,7 @@ describe('SELApiService', () => {
       expect(() => responseErrorHandler(makeAxiosError(401, '/api/symbols'))).toThrow()
 
       expect(service.isTokenValid()).toBe(false)
-      expect(mockStorage.clearAuth).toHaveBeenCalled()
+      expect(removeItemSpy).toHaveBeenCalledWith('sel:token')
 
       vi.unstubAllGlobals()
     })
