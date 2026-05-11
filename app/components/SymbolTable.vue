@@ -93,7 +93,14 @@
               {{ row.value ? formatRelativeTime(row.value.lastUpdated) : '—' }}
             </td>
             <td class="px-4 py-3">
-              <StatusBadge :status="getSymbolStatus(row.value?.lastUpdated)" />
+              <span
+                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                :class="{
+                  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': row.status === 'active',
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': row.status === 'stale',
+                  'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400': row.status === 'inactive',
+                }"
+              >{{ row.status === 'active' ? 'Active' : row.status === 'stale' ? 'Stale' : 'Inactive' }}</span>
             </td>
             <td class="px-4 py-3 text-right">
               <button
@@ -215,14 +222,16 @@ function sortIndicator(col: SortColumn): string {
 
 // ── Computed rows ─────────────────────────────────────────────────────────────
 
-type TableRow = { symbol: Symbol; value: SymbolValue | undefined }
+import type { SymbolStatus } from '~/types/api'
+
+type TableRow = { symbol: Symbol; value: SymbolValue | undefined; status: SymbolStatus }
 
 const filteredAndSorted = computed<TableRow[]>(() => {
   const query = debouncedSearch.value.toLowerCase()
 
   let rows: TableRow[] = props.symbols
     .filter(s => s.name.toLowerCase().includes(query))
-    .map(s => ({ symbol: s, value: props.symbolValues.get(s.name) }))
+    .map(s => ({ symbol: s, value: props.symbolValues.get(s.name), status: getSymbolStatus(props.symbolValues.get(s.name)?.lastUpdated) }))
 
   if (sortColumn.value === 'name') {
     rows = rows.sort((a, b) =>

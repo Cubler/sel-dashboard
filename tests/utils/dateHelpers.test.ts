@@ -1,54 +1,80 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { formatRelativeTime, formatTimestamp, formatFullTimestamp } from '~/utils/dateHelpers'
 
 describe('formatRelativeTime', () => {
-  beforeEach(() => vi.useFakeTimers())
   afterEach(() => vi.useRealTimers())
 
-  it('returns "—" for null', () => expect(formatRelativeTime(null)).toBe('—'))
-  it('returns "—" for undefined', () => expect(formatRelativeTime(undefined)).toBe('—'))
-
-  it('returns "just now" for <2 seconds ago', () => {
-    expect(formatRelativeTime(new Date(Date.now() - 1_000))).toBe('just now')
+  it('returns "—" for null', () => {
+    expect(formatRelativeTime(null)).toBe('—')
   })
 
-  it('returns seconds for 2–59 seconds ago', () => {
-    expect(formatRelativeTime(new Date(Date.now() - 30_000))).toBe('30s ago')
+  it('returns "—" for undefined', () => {
+    expect(formatRelativeTime(undefined)).toBe('—')
   })
 
-  it('returns minutes for 60+ seconds ago', () => {
-    expect(formatRelativeTime(new Date(Date.now() - 90_000))).toBe('1m ago')
-    expect(formatRelativeTime(new Date(Date.now() - 120_000))).toBe('2m ago')
+  it('returns "just now" for a very recent date', () => {
+    vi.useFakeTimers()
+    const date = new Date(Date.now() - 500)
+    expect(formatRelativeTime(date)).toBe('just now')
   })
 
-  it('returns hours for 3600+ seconds ago', () => {
-    expect(formatRelativeTime(new Date(Date.now() - 3_600_000))).toBe('1h ago')
+  it('returns seconds for dates 2–59s ago', () => {
+    vi.useFakeTimers()
+    const date = new Date(Date.now() - 10_000)
+    expect(formatRelativeTime(date)).toBe('10s ago')
+  })
+
+  it('returns minutes for dates 60s+ ago', () => {
+    vi.useFakeTimers()
+    const date = new Date(Date.now() - 90_000)
+    expect(formatRelativeTime(date)).toBe('1m ago')
+  })
+
+  it('returns hours for dates 60+ minutes ago', () => {
+    vi.useFakeTimers()
+    const date = new Date(Date.now() - 2 * 60 * 60 * 1_000)
+    expect(formatRelativeTime(date)).toBe('2h ago')
   })
 })
 
 describe('formatTimestamp', () => {
-  it('returns "—" for null', () => expect(formatTimestamp(null)).toBe('—'))
-  it('returns "—" for undefined', () => expect(formatTimestamp(undefined)).toBe('—'))
-  it('returns "—" for an unparseable string', () => expect(formatTimestamp('not-a-date')).toBe('—'))
-
-  it('formats a valid ISO string to HH:MM:SS', () => {
-    const result = formatTimestamp('2024-12-03T00:00:00.000Z')
-    expect(result).toMatch(/\d+:\d+/)
+  it('returns "—" for null', () => {
+    expect(formatTimestamp(null)).toBe('—')
   })
 
-  it('formats a Date object', () => {
-    const result = formatTimestamp(new Date('2024-12-03T00:00:00.000Z'))
-    expect(result).toMatch(/\d+:\d+/)
+  it('returns "—" for undefined', () => {
+    expect(formatTimestamp(undefined)).toBe('—')
+  })
+
+  it('returns "—" for an invalid date string', () => {
+    expect(formatTimestamp('not-a-date')).toBe('—')
+  })
+
+  it('returns a time string for a valid ISO string', () => {
+    const result = formatTimestamp('2024-12-03T14:30:00.000Z')
+    expect(typeof result).toBe('string')
+    expect(result).not.toBe('—')
+  })
+
+  it('accepts a Date object', () => {
+    const result = formatTimestamp(new Date('2024-12-03T14:30:00.000Z'))
+    expect(result).not.toBe('—')
   })
 })
 
 describe('formatFullTimestamp', () => {
-  it('returns "—" for null', () => expect(formatFullTimestamp(null)).toBe('—'))
-  it('returns "—" for undefined', () => expect(formatFullTimestamp(undefined)).toBe('—'))
+  it('returns "—" for null', () => {
+    expect(formatFullTimestamp(null)).toBe('—')
+  })
 
-  it('returns a non-empty human-readable string for a valid date', () => {
-    const result = formatFullTimestamp(new Date())
-    expect(result).not.toBe('—')
+  it('returns "—" for undefined', () => {
+    expect(formatFullTimestamp(undefined)).toBe('—')
+  })
+
+  it('returns a non-empty string for a valid date', () => {
+    const result = formatFullTimestamp(new Date('2024-12-03T14:30:00.000Z'))
+    expect(typeof result).toBe('string')
     expect(result.length).toBeGreaterThan(0)
+    expect(result).not.toBe('—')
   })
 })

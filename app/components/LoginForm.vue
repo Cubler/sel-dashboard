@@ -106,25 +106,25 @@
             </label>
           </div>
 
-          <!-- Auth error from store -->
+          <!-- Auth error -->
           <div
-            v-if="auth.error"
+            v-if="authError"
             role="alert"
             class="mb-5 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20"
           >
             <p class="text-sm text-red-700 dark:text-red-400">
-              {{ auth.error.message }}
+              {{ authError.message }}
             </p>
           </div>
 
           <!-- Submit -->
           <button
             type="submit"
-            :disabled="auth.loading"
+            :disabled="authLoading"
             class="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-400"
           >
             <svg
-              v-if="auth.loading"
+              v-if="authLoading"
               class="h-4 w-4 animate-spin"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -138,7 +138,7 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            <span>{{ auth.loading ? 'Connecting...' : 'Connect to Server' }}</span>
+            <span>{{ authLoading ? 'Connecting...' : 'Connect to Server' }}</span>
           </button>
         </form>
       </div>
@@ -149,15 +149,14 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '~/stores/auth'
-import { storageService } from '~/services/storageService'
+import { useSymbolPolling } from '~/composables/useSymbolPolling'
 
-const auth = useAuthStore()
+const { login, authError, authLoading } = useSymbolPolling()
 const router = useRouter()
 
 const form = reactive({
-  serverUrl: storageService.getServerUrl() ?? 'https://192.168.3.2',
-  username: storageService.getUsername() ?? '',
+  serverUrl: localStorage.getItem('sel:serverUrl') ?? 'https://192.168.3.2',
+  username: localStorage.getItem('sel:username') ?? '',
   password: '',
 })
 
@@ -167,9 +166,8 @@ const fieldErrors = reactive({
   password: '',
 })
 
-// Default to checked if saved credentials exist
 const rememberCredentials = ref(
-  !!(storageService.getUsername() || storageService.getServerUrl()),
+  !!(localStorage.getItem('sel:username') || localStorage.getItem('sel:serverUrl')),
 )
 
 function inputClass(hasError: boolean): string {
@@ -211,7 +209,7 @@ function validate(): boolean {
 async function handleSubmit() {
   if (!validate()) return
 
-  const success = await auth.login({
+  const success = await login({
     serverUrl: form.serverUrl,
     username: form.username,
     password: form.password,
@@ -219,11 +217,12 @@ async function handleSubmit() {
 
   if (success) {
     if (rememberCredentials.value) {
-      storageService.setUsername(form.username)
-      storageService.setServerUrl(form.serverUrl)
+      localStorage.setItem('sel:username', form.username)
+      localStorage.setItem('sel:serverUrl', form.serverUrl)
     }
     else {
-      storageService.clearCredentials()
+      localStorage.removeItem('sel:username')
+      localStorage.removeItem('sel:serverUrl')
     }
     router.push('/dashboard')
   }

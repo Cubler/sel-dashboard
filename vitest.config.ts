@@ -13,6 +13,10 @@ export default defineVitestConfig({
         'app/plugins/**',
         'app/app.vue',
         'app/types/**',
+        // View-heavy components without dedicated tests (same rationale as pages exclusion)
+        'app/components/ConnectionIndicator.vue',
+        'app/components/SymbolDetailModal.vue',
+        'app/components/UserMenu.vue',
       ],
       reporter: ['text', 'html'],
       thresholds: {
