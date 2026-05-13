@@ -222,7 +222,7 @@ import {
   Tooltip,
   Filler,
 } from 'chart.js'
-import type { QualityValidity, Symbol, SymbolHistory, SymbolValue } from '~/types/api'
+import type { ApiDetailQual, Symbol, SymbolHistory, SymbolValue } from '~/types/api'
 import { getSymbolStatus } from '~/utils/qualityHelpers'
 import { formatTimestamp, formatRelativeTime, formatFullTimestamp } from '~/utils/dateHelpers'
 
@@ -244,31 +244,26 @@ const value = computed(() => props.symbolValues.get(props.symbolName))
 const history = computed(() => props.symbolHistory.get(props.symbolName))
 const symbolStatus = computed(() => getSymbolStatus(value.value?.lastUpdated))
 
-const rd = computed(() => value.value?.rawData as any)
-const units = computed(() => (rd.value?.units as string | undefined) ?? '')
-const range = computed(() => (rd.value?.range as string | undefined) ?? 'normal')
-const multiplier = computed(() => (rd.value?.multiplier as number | undefined) ?? 1.0)
-const description = computed(() => (rd.value?.d as string | undefined) ?? symbolMeta.value?.description ?? '')
-const validity = computed(() => (rd.value?.q?.validity as QualityValidity | undefined) ?? 'invalid')
-const qSource = computed(() => (rd.value?.q?.source as string | undefined) ?? 'unknown')
-const operatorBlocked = computed(() => (rd.value?.q?.operatorBlocked as boolean | undefined) ?? false)
-const clockNotSynchronized = computed(() => (rd.value?.t?.clockNotSynchronized as boolean | undefined) ?? false)
+const rd = computed(() => value.value?.rawData)
+const units = computed(() => rd.value?.units ?? '')
+const range = computed(() => rd.value?.range ?? 'normal')
+const multiplier = computed(() => rd.value?.multiplier ?? 1.0)
+const description = computed(() => rd.value?.d ?? symbolMeta.value?.description ?? '')
+const validity = computed(() => rd.value?.q?.validity ?? 'invalid')
+const qSource = computed(() => rd.value?.q?.source ?? 'unknown')
+const operatorBlocked = computed(() => rd.value?.q?.operatorBlocked ?? false)
+const clockNotSynchronized = computed(() => rd.value?.t?.clockNotSynchronized ?? false)
 
-interface DetailQual {
-  overflow: boolean; outOfRange: boolean; badReference: boolean; oscillatory: boolean
-  failure: boolean; oldData: boolean; inconsistent: boolean; inaccurate: boolean
-}
-
-const DETAIL_QUAL_LABELS: Record<keyof DetailQual, string> = {
+const DETAIL_QUAL_LABELS: Record<keyof ApiDetailQual, string> = {
   overflow: 'Overflow', outOfRange: 'Out of range', badReference: 'Bad reference',
   oscillatory: 'Oscillatory', failure: 'Failure', oldData: 'Old data',
   inconsistent: 'Inconsistent', inaccurate: 'Inaccurate',
 }
 
 const activeDetailFlags = computed<string[]>(() => {
-  const dq = rd.value?.q?.detailQual as DetailQual | undefined
+  const dq = rd.value?.q?.detailQual
   if (!dq) return []
-  return (Object.entries(dq) as [keyof DetailQual, boolean][])
+  return (Object.entries(dq) as [keyof ApiDetailQual, boolean][])
     .filter(([, v]) => v)
     .map(([k]) => DETAIL_QUAL_LABELS[k])
 })

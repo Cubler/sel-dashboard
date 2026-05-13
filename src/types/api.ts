@@ -55,7 +55,7 @@ export interface SymbolValue {
   stVal: number
   t: string           // formatted timestamp string from t.value
   lastUpdated: Date   // client-side timestamp when data was received
-  rawData?: Record<string, unknown>
+  rawData?: ApiSymbolValue
 }
 
 export interface SymbolHistoryPoint {

@@ -112,7 +112,7 @@ export class SELApiService {
       stVal: data.stVal,
       t: data.t.value,
       lastUpdated: new Date(),
-      rawData: data as unknown as Record<string, unknown>,
+      rawData: data,
     }
   }
 
