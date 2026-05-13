@@ -33,7 +33,7 @@
           </button>
           <button
             class="rounded px-2 py-1 font-medium text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 dark:text-red-400 dark:hover:bg-red-900/20"
-            @click="handleLogout"
+            @click="showLogoutConfirm = true"
           >
             Logout
           </button>
@@ -44,15 +44,7 @@
     <!-- Main content -->
     <main class="mx-auto w-full max-w-screen-2xl flex-1 px-4 py-5">
 
-      <!-- Fetch error banner -->
-      <div
-        v-if="fetchError"
-        role="alert"
-        class="mb-4 flex items-start justify-between gap-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
-      >
-        <span>{{ fetchError.message }}</span>
-        <button class="shrink-0 font-medium underline" @click="dismissError">Dismiss</button>
-      </div>
+      <ErrorDisplay :message="fetchError?.message" @dismiss="dismissError" />
 
       <!-- Loading spinner -->
       <div
@@ -110,18 +102,33 @@
       @close="selectedSymbol = null"
     />
 
+    <ConfirmDialog
+      v-if="showLogoutConfirm"
+      title="Log out?"
+      message="Your session will end and polling will stop."
+      confirm-label="Log out"
+      @confirm="handleLogout"
+      @cancel="showLogoutConfirm = false"
+    />
+
+    <ToastNotification />
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePreferencesStore } from '~/stores/preferences'
 import { useSymbolPolling } from '~/composables/useSymbolPolling'
 import { usePolling } from '~/composables/usePolling'
+import { useToast } from '~/composables/useToast'
 import type { PollingInterval } from '~/types/api'
 import UserMenu from '~/components/UserMenu.vue'
 import ConnectionIndicator from '~/components/ConnectionIndicator.vue'
+import ErrorDisplay from '~/components/ErrorDisplay.vue'
+import ConfirmDialog from '~/components/ConfirmDialog.vue'
+import ToastNotification from '~/components/ToastNotification.vue'
 import SymbolTable from '~/components/SymbolTable.vue'
 import SymbolDetailModal from '~/components/SymbolDetailModal.vue'
 
@@ -134,7 +141,9 @@ const {
 const prefs = usePreferencesStore()
 const router = useRouter()
 
+const { show: showToast } = useToast()
 const selectedSymbol = ref<string | null>(null)
+const showLogoutConfirm = ref(false)
 
 const displayServer = computed(() => {
   try { return new URL(serverUrl.value).hostname }
@@ -144,6 +153,10 @@ const displayServer = computed(() => {
 function dismissError() {
   fetchError.value = null
 }
+
+watch(fetchError, (err) => {
+  if (err) showToast(err.message, 'error')
+})
 
 // ── Polling ───────────────────────────────────────────────────────────────────
 
@@ -166,6 +179,7 @@ onMounted(async () => {
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 function handleLogout() {
+  showLogoutConfirm.value = false
   stop()
   clearData()
   logout()

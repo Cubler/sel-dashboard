@@ -13,11 +13,31 @@
     <span :class="status.isConnected ? 'text-gray-700 dark:text-gray-300' : 'text-red-600 dark:text-red-400'">
       {{ status.isConnected ? 'Connected' : 'Disconnected' }}
     </span>
+    <span
+      v-if="status.lastConnection"
+      class="text-gray-400 dark:text-gray-500"
+    >
+      · Last updated: {{ relativeTime }}
+    </span>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import type { ConnectionStatus } from '~/types/api'
+import { formatRelativeTime } from '~/utils/dateHelpers'
 
-defineProps<{ status: ConnectionStatus }>()
+const props = defineProps<{ status: ConnectionStatus }>()
+
+// Tick every second so the relative time string stays live
+const tick = ref(0)
+let timer: ReturnType<typeof setInterval>
+
+onMounted(() => { timer = setInterval(() => { tick.value++ }, 1_000) })
+onUnmounted(() => clearInterval(timer))
+
+const relativeTime = computed(() => {
+  void tick.value // re-evaluate each second
+  return formatRelativeTime(props.status.lastConnection)
+})
 </script>

@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios'
+import { storage } from './storageService'
 import type {
   AuthCredentials,
   AuthTokenResponse,
@@ -9,8 +10,8 @@ import type {
   ApiError,
 } from '~/types/api'
 
-const TOKEN_KEY = 'sel:token'
-const TOKEN_EXPIRY_KEY = 'sel:tokenExpiry'
+const TOKEN_KEY = 'token'
+const TOKEN_EXPIRY_KEY = 'tokenExpiry'
 
 export interface ApiServiceConfig {
   baseURL: string
@@ -29,8 +30,8 @@ export class SELApiService {
     })
 
     // Restore persisted session so refreshes don't log the user out
-    this.token = localStorage.getItem(TOKEN_KEY)
-    const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY)
+    this.token = storage.get(TOKEN_KEY)
+    const expiry = storage.get(TOKEN_EXPIRY_KEY)
     this.tokenExpiry = expiry ? Number(expiry) : null
 
     this.setupInterceptors()
@@ -73,15 +74,15 @@ export class SELApiService {
   setToken(token: string, expiresIn: number): void {
     this.token = token
     this.tokenExpiry = Date.now() + expiresIn * 1_000
-    localStorage.setItem(TOKEN_KEY, token)
-    localStorage.setItem(TOKEN_EXPIRY_KEY, String(this.tokenExpiry))
+    storage.set(TOKEN_KEY, token)
+    storage.set(TOKEN_EXPIRY_KEY, String(this.tokenExpiry))
   }
 
   clearToken(): void {
     this.token = null
     this.tokenExpiry = null
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(TOKEN_EXPIRY_KEY)
+    storage.remove(TOKEN_KEY)
+    storage.remove(TOKEN_EXPIRY_KEY)
   }
 
   isTokenValid(): boolean {

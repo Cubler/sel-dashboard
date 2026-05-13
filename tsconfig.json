@@ -7,9 +7,9 @@
     "jsx": "preserve",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./src/*"]
     },
     "skipLibCheck": true
   },
-  "include": ["app/**/*", "server/**/*", "tests/**/*", "vite.config.ts"]
+  "include": ["src/**/*", "server/**/*", "tests/**/*", "vite.config.ts"]
 }

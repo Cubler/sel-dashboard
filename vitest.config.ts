@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '~': fileURLToPath(new URL('./app', import.meta.url)),
+      '~': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   test: {
@@ -14,18 +14,19 @@ export default defineConfig({
     environment: 'happy-dom',
     coverage: {
       provider: 'v8',
-      include: ['app/**/*.{ts,vue}'],
+      include: ['src/**/*.{ts,vue}'],
       exclude: [
-        'app/pages/**',
-        'app/middleware/**',
-        'app/plugins/**',
-        'app/router.ts',
-        'app/main.ts',
-        'app/app.vue',
-        'app/types/**',
-        'app/components/ConnectionIndicator.vue',
-        'app/components/SymbolDetailModal.vue',
-        'app/components/UserMenu.vue',
+        'src/pages/**',
+        'src/router.ts',
+        'src/main.ts',
+        'src/app.vue',
+        'src/types/**',
+        'src/components/ConnectionIndicator.vue',
+        'src/components/ConfirmDialog.vue',
+        'src/components/ErrorDisplay.vue',
+        'src/components/SymbolDetailModal.vue',
+        'src/components/ToastNotification.vue',
+        'src/components/UserMenu.vue',
       ],
       reporter: ['text', 'html'],
       thresholds: {

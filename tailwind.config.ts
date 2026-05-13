@@ -4,6 +4,6 @@ export default {
   darkMode: 'class',
   content: [
     './index.html',
-    './app/**/*.{vue,ts}',
+    './src/**/*.{vue,ts}',
   ],
 } satisfies Config

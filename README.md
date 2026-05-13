@@ -2,9 +2,9 @@
 
 ## Overview
 
-A production-ready single-page application built with **Nuxt 4 (Vue 3)** that connects to an industrial device API to visualise and manage real-time symbol values. The app authenticates via Basic Auth → Bearer token, polls up to 50 symbols concurrently, accumulates a 5-minute client-side history, and presents the data in a sortable/filterable table with per-symbol detail modals and live line charts.
+A production-ready single-page application built with **Vite + Vue 3** that connects to an industrial device API to visualise and manage real-time symbol values. The app authenticates via Basic Auth → Bearer token, polls up to 50 symbols concurrently using `Promise.allSettled`, accumulates a 5-minute client-side history, and presents the data in a sortable/filterable table with per-symbol detail modals and live line charts.
 
-Nuxt's built-in Nitro server routes stand in for the physical device (`192.168.3.2`), which is not reachable externally. The same mock works identically in local development, Vitest, and the Docker production container — no service-worker setup, no environment gating.
+A Vite dev-server plugin stands in for the physical device (`192.168.3.2`), which is not reachable externally. The same mock runs identically in local development and `vite preview` — no service-worker setup, no environment gating.
 
 ---
 
@@ -12,14 +12,15 @@ Nuxt's built-in Nitro server routes stand in for the physical device (`192.168.3
 
 | Concern | Choice |
 |---|---|
-| Framework | **Nuxt 4** (Vue 3) with TypeScript strict mode |
-| Build tool | Vite via Nitro (Nuxt's built-in SSR/SPA bundler) |
-| State management | **Pinia** (composition-API stores) |
+| Framework | **Vue 3** with TypeScript strict mode |
+| Build tool | **Vite 7** |
+| Routing | **Vue Router 5** |
+| State management | **Pinia** (composition-API stores) + module-level composable singletons |
 | HTTP client | **Axios** with request/response interceptors |
-| Testing | **Vitest** + `@vue/test-utils` + `@nuxt/test-utils` |
+| Testing | **Vitest** + `@vue/test-utils` + `happy-dom` |
+| E2E testing | **Playwright** |
 | Charts | **Chart.js 4** (raw API — not vue-chartjs — for lifecycle control) |
 | Styling | **Tailwind CSS** (`darkMode: 'class'`) |
-| Internationalization | Not implemented |
 
 ---
 
@@ -40,31 +41,37 @@ npm install
 
 ```bash
 npm run dev
-# → http://localhost:3000
+# → http://localhost:5173
 ```
 
 Default credentials (mock server):
 
 | Field | Value |
 |---|---|
-| Server URL | `https://192.168.3.2` (any value works with mock) |
+| Server URL | `https://192.168.3.2` (any valid URL works with the mock) |
 | Username | `testuser` |
 | Password | `testpass` |
 
 ### Testing
 
 ```bash
-npm run test              # run all tests once
-npm run test:coverage     # run tests + generate coverage report
+npm run test                  # run all unit/component tests once
+npm run test:coverage         # run tests + generate coverage report
 ```
 
 Coverage report is written to `coverage/index.html`.
 
+```bash
+# E2E tests (requires dev server running on port 5173)
+npx playwright test tests/e2e/
+```
+
 ### Production build
 
 ```bash
-npm run build     # Nitro bundles app + server into .output/
-npm run preview   # serve .output/ locally
+npm run build     # Vite builds frontend into dist/
+npm run preview   # serve dist/ locally with mock API (port 4173)
+npm run start     # Node.js production server (requires VITE_DEVICE_IP)
 ```
 
 ### Docker
@@ -79,7 +86,7 @@ To point at the real industrial device:
 ```yaml
 # docker-compose.yml
 environment:
-  - NUXT_PUBLIC_DEVICE_IP=192.168.3.2
+  - VITE_DEVICE_IP=192.168.3.2
   - NODE_TLS_REJECT_UNAUTHORIZED=0   # device uses a self-signed certificate
 ```
 
@@ -91,102 +98,112 @@ environment:
 
 ```
 sel-dashboard/
-├── server/                         Nitro server (mock API + real-device proxy)
-│   ├── api/
-│   │   ├── auth/token.get.ts       GET /api/auth/token  (Basic Auth → Bearer)
-│   │   └── symbols/
-│   │       ├── index.get.ts        GET /api/symbols
-│   │       └── [name].get.ts       GET /api/symbols/:name  (value with jitter)
-│   ├── middleware/realDevice.ts    Proxies /api/* → https://[IP]/api/v1/* when DEVICE_IP set
-│   └── utils/mockData.ts           18 mock symbols (12 INS + 6 non-INS), random jitter
-│
-├── app/                            Vue 3 SPA (Nuxt srcDir)
+├── src/                            Vue 3 SPA source
 │   ├── services/
 │   │   ├── apiService.ts           SELApiService class — axios, interceptors, token lifecycle
-│   │   └── storageService.ts       Typed localStorage wrapper
+│   │   └── storageService.ts       Typed localStorage wrapper (namespaced under "sel:")
 │   ├── stores/
-│   │   ├── auth.ts                 isAuthenticated, login(), logout()
-│   │   ├── symbols.ts              symbols[], symbolValues Map, symbolHistory Map, polling interval
-│   │   └── preferences.ts          theme (light/dark/auto), autoStartPolling
+│   │   └── preferences.ts          Pinia store — theme (light/dark/auto), autoStartPolling
 │   ├── composables/
-│   │   └── usePolling.ts           Reusable setInterval composable with concurrent-call guard
+│   │   ├── usePolling.ts           Reusable setInterval composable with concurrent-call guard
+│   │   ├── useSymbolPolling.ts     Auth + symbol data + history — module-level singleton state
+│   │   └── useToast.ts             Toast notification queue (module-level singleton)
 │   ├── components/
 │   │   ├── LoginForm.vue           Basic Auth form with per-field validation
 │   │   ├── SymbolTable.vue         Table — search (300 ms debounce), sort, pagination, CSV export
 │   │   ├── SymbolDetailModal.vue   Focus-trapped modal — live value, history chart, quality detail
-│   │   ├── SymbolHistoryChart.vue  Chart.js line chart, updates in-place without flicker
-│   │   ├── ConnectionIndicator.vue Animated status dot with live relative-time clock
-│   │   ├── PollingControls.vue     Start/stop + interval selector
-│   │   ├── UserMenu.vue            Settings dropdown — theme toggle, auto-start preference
-│   │   ├── StatusBadge.vue         Active / Stale / Inactive pill
-│   │   └── QualityBadge.vue        Good / Questionable / Invalid pill
+│   │   ├── ConnectionIndicator.vue Animated status dot + live "Last updated: Xs ago" clock
+│   │   ├── ErrorDisplay.vue        Dismissible error banner (reusable)
+│   │   ├── ConfirmDialog.vue       Modal confirmation dialog (reusable)
+│   │   ├── ToastNotification.vue   Auto-dismissing toast stack (bottom-right)
+│   │   └── UserMenu.vue            Settings dropdown — theme toggle, auto-start preference
 │   ├── utils/
 │   │   ├── qualityHelpers.ts       getSymbolStatus() — 30 s / 60 s thresholds
 │   │   ├── dateHelpers.ts          formatRelativeTime(), formatTimestamp(), formatFullTimestamp()
 │   │   └── csvExport.ts            Export filtered+sorted view, quotes comma-containing values
-│   └── pages/
-│       ├── login.vue               Mounts LoginForm
-│       └── dashboard.vue           Orchestrates polling lifecycle, ConnectionIndicator, SymbolTable
+│   ├── pages/
+│   │   ├── login.vue               Mounts LoginForm
+│   │   └── dashboard.vue           Orchestrates polling, ConnectionIndicator, SymbolTable
+│   ├── types/api.ts                All TypeScript interfaces
+│   ├── router.ts                   Vue Router config + beforeEach auth guard
+│   └── main.ts                     App bootstrap — Pinia, router, session + theme restore
 │
-├── tests/                          157 tests across services, stores, composables, utils, components
+├── server/                         Dev server mock + production server
+│   ├── mock-plugin.ts              Vite plugin — serves mock /api/* in dev and vite preview
+│   ├── prod-server.mjs             Node.js production server — static files + device proxy
+│   └── utils/mockData.ts           12 INS mock symbols with varying quality/range/jitter
+│
+├── tests/                          97 unit and component tests (Vitest) + 3 E2E (Playwright)
+│   ├── components/
+│   ├── composables/
+│   ├── e2e/
+│   ├── services/
+│   └── utils/
+│
 ├── Dockerfile                      Multi-stage — node:20-alpine builder → node:20-alpine runtime
 ├── docker-compose.yml
-└── .env.example                    Documents NUXT_PUBLIC_DEVICE_IP
+└── .env.example                    Documents VITE_DEVICE_IP
 ```
 
 ### Key design decisions
 
-**1. Nuxt server routes instead of MSW**
+**1. Vite plugin mock instead of MSW**
 
-MSW requires a service worker (browser-only) and a separate Node.js integration for Vitest — two different setups that can diverge. Nuxt server routes (`server/api/`) are plain Nitro event handlers that run in the same process in every environment: `npm run dev`, `vitest`, and `docker-compose up`. The mock data is defined once and is always available with no environment gating.
+The mock API (`server/mock-plugin.ts`) runs as a Vite `configureServer` / `configurePreviewServer` middleware. This means the same mock handler runs in both `npm run dev` and `npm run preview` with zero extra processes and no environment gating. When `VITE_DEVICE_IP` is set, the plugin proxies `/api/*` requests to the real device instead.
 
 **2. `Promise.allSettled` for batch polling**
 
-`fetchAllValues()` fires one `GET /api/symbols/:name` per symbol concurrently. Using `Promise.all` would abort all 50 updates the moment any single symbol times out or returns a 4xx. `Promise.allSettled` lets the 49 succeeding symbols update normally; the failing symbol simply retains its last known value in the Map. `connectionStatus.isConnected` is derived from whether *at least one* symbol succeeded.
+`fetchAllValues()` fires one `GET /api/symbols/:name` per symbol concurrently. Using `Promise.all` would abort all updates the moment any single symbol times out or returns 4xx. `Promise.allSettled` lets the succeeding symbols update normally while the failing symbol retains its last known value. `connectionStatus.isConnected` is derived from whether at least one symbol succeeded.
 
-**3. Client-side rolling history**
+**3. Module-level singleton state in `useSymbolPolling`**
 
-There is no history API endpoint. `addToHistory()` in the symbols store appends a `SymbolHistoryPoint` on every successful poll and prunes in two ways: entries older than 5 minutes (`Date.now() - 300_000`) and a hard cap of 50 points — whichever fires first. The `SymbolHistoryChart` component shows an empty-state message until ≥ 2 points exist, then updates the Chart.js instance in-place via `chart.update('none')` to avoid animation flicker on every tick.
+Auth state, symbol data, history, and connection status live as module-level `ref`/`reactive` values inside `useSymbolPolling.ts` — not in a Pinia store. Every caller shares the same refs, making cross-component access straightforward without injecting a store. Pinia is used only for user preferences (theme, auto-start), which genuinely benefit from DevTools support and plugin compatibility.
 
-**4. Token expiry timestamp tracking**
+**4. Client-side rolling history**
 
-`SELApiService` stores both the token string and its expiry epoch (`Date.now() + expiresIn * 1000`). `isTokenValid()` checks existence *and* `Date.now() < tokenExpiry` — not just presence. Both values are persisted to `localStorage` so a page refresh within the 1-hour window stays authenticated. The `auth.client.ts` Nuxt plugin calls `auth.init()` before the first route guard fires, restoring the session if the stored token is still valid.
+There is no history API endpoint. `addToHistory()` appends a `SymbolHistoryPoint` on every successful poll and prunes in two ways: entries older than 5 minutes (`Date.now() - 300_000`) and a hard cap of 50 points. `SymbolDetailModal` shows an empty-state message until ≥ 2 points exist, then updates the Chart.js instance in-place via `chart.update('none')` to avoid animation flicker on every tick.
 
-**5. Switching from mock to real device**
+**5. Token expiry timestamp tracking**
 
-Set `NUXT_PUBLIC_DEVICE_IP=192.168.3.2` in the environment. The `server/middleware/realDevice.ts` Nitro middleware intercepts every `/api/*` request and proxies it to `https://[IP]/api/v1/*`, translating paths (`/api/symbols` → `/api/v1/logic-engine/symbols`). Because the device uses a self-signed TLS certificate, also set `NODE_TLS_REJECT_UNAUTHORIZED=0`. When the env var is absent, all requests fall through to the built-in mock routes — no code changes required.
+`SELApiService` stores both the token string and its expiry epoch (`Date.now() + expiresIn * 1000`) via `storageService`. `isTokenValid()` checks existence *and* `Date.now() < tokenExpiry` — not just presence. On page refresh, `main.ts` calls `useSymbolPolling().init()` before mounting, restoring the session if the stored token is still valid.
+
+**6. Mock vs. real device switching**
+
+Set `VITE_DEVICE_IP=192.168.3.2` in the environment. The Vite plugin and production server both intercept `/api/*` requests and proxy them to `https://[IP]/api/v1/*`, translating paths (`/api/symbols` → `/api/v1/logic-engine/symbols`). When the env var is absent, all requests fall through to the mock handlers — no code changes required.
 
 ---
 
 ## Features Implemented
 
 - [x] Basic Auth → Bearer token authentication with automatic header injection
-- [x] Token storage in memory + `localStorage`, restored on page refresh
+- [x] Token storage in memory + `localStorage` (via `storageService`), restored on page refresh
 - [x] Automatic logout on 401 responses from authenticated endpoints
 - [x] Symbol dashboard — sortable, searchable table (debounced 300 ms), paginated (10/25/50)
 - [x] Real-time polling at 1 s / 2 s / 5 s / 10 s (configurable, start/stop controls)
 - [x] Symbol status indicators — Active (< 30 s), Stale (30–60 s), Inactive (> 60 s)
 - [x] Client-side 5-minute rolling history (max 50 points per symbol)
 - [x] Symbol detail modal with live-updating value, metadata, quality breakdown, and history chart
-- [x] Connection status indicator with live relative-time display
+- [x] Connection status indicator with live "Last updated: Xs ago" display
+- [x] Toast notifications for poll errors (auto-dismiss after 4 s)
+- [x] Confirmation dialog on logout
 - [x] CSV export of the current filtered + sorted view
 - [x] Theme support — Light / Dark / Auto (follows OS preference), persisted to `localStorage`
 - [x] Auto-start polling preference, persisted to `localStorage`
 - [x] Responsive layout (768 px minimum)
 - [x] Accessibility — ARIA roles, `aria-modal`, focus trapping in modals, keyboard navigation
-- [x] 157 unit and component tests, 91 % statement coverage (threshold: 70 %)
+- [x] 97 unit and component tests, 84% statement coverage (threshold: 70%)
+- [x] 3 Playwright E2E tests covering modal close interactions
 - [x] Docker support — multi-stage `node:20-alpine` image, `docker-compose.yml`
 
 ---
 
 ## Known Issues / Future Improvements
 
-- **Mock data only** — `192.168.3.2` is a private LAN address. All data is generated by `server/utils/mockData.ts`. Set `NUXT_PUBLIC_DEVICE_IP` to connect to a real device.
 - **Polling volume** — 50 symbols at 1 s = 50 HTTP requests/second. A production improvement would be a server-side aggregation endpoint or WebSocket push, reducing client-server chatter by ~50×.
 - **Full-page reload on session expiry** — the 401 handler in `apiService.ts` uses `window.location.replace('/login')`. Injecting the Vue Router instance would allow a soft navigation instead.
+- **Production mock** — `server/prod-server.mjs` has no mock fallback; `VITE_DEVICE_IP` must be set when running the Docker image. Use `npm run preview` for local smoke-testing the built app with mock data.
 - **No i18n** — English only.
 - **No WebSocket support** — polling only.
-- **No E2E tests** — Vitest unit/component tests only. Playwright would cover the full auth → dashboard → polling → modal flow.
 
 ---
 
@@ -198,6 +215,5 @@ Approximately 10 hours.
 
 ## Questions or Notes
 
-- The application works fully out of the box without the physical device. Mock credentials (`testuser` / `testpass`) work in development, test, and Docker production builds.
-- The mock generates 12 `INS`-type symbols and 6 non-`INS` symbols to demonstrate that the client-side `Type === 'INS'` filter is working correctly.
-- `lockfileVersion 3` in `package-lock.json` was regenerated inside a `node:20-alpine` container to ensure `npm ci` is reproducible inside Docker (local toolchain is Node 22 / npm 11).
+- The application works fully out of the box without the physical device. Mock credentials (`testuser` / `testpass`) work in development and `vite preview`.
+- The mock server returns 12 `INS`-type symbols, all with varied quality (`good` / `questionable` / `invalid`) and range states (`normal` / `high` / `low`) to exercise the detail modal's quality and range display paths.

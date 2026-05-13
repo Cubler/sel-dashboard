@@ -1,5 +1,6 @@
 import { reactive, ref } from 'vue'
 import { apiService } from '~/services/apiService'
+import { storage } from '~/services/storageService'
 import type {
   ApiError,
   AuthCredentials,
@@ -34,8 +35,8 @@ export function useSymbolPolling() {
   function init(): void {
     if (apiService.isTokenValid()) {
       isAuthenticated.value = true
-      username.value = localStorage.getItem('sel:username') ?? ''
-      serverUrl.value = localStorage.getItem('sel:serverUrl') ?? ''
+      username.value = storage.get('username') ?? ''
+      serverUrl.value = storage.get('serverUrl') ?? ''
     }
   }
 

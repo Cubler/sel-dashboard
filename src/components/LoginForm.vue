@@ -150,13 +150,14 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSymbolPolling } from '~/composables/useSymbolPolling'
+import { storage } from '~/services/storageService'
 
 const { login, authError, authLoading } = useSymbolPolling()
 const router = useRouter()
 
 const form = reactive({
-  serverUrl: localStorage.getItem('sel:serverUrl') ?? 'https://192.168.3.2',
-  username: localStorage.getItem('sel:username') ?? '',
+  serverUrl: storage.get('serverUrl') ?? 'https://192.168.3.2',
+  username: storage.get('username') ?? '',
   password: '',
 })
 
@@ -167,7 +168,7 @@ const fieldErrors = reactive({
 })
 
 const rememberCredentials = ref(
-  !!(localStorage.getItem('sel:username') || localStorage.getItem('sel:serverUrl')),
+  !!(storage.get('username') || storage.get('serverUrl')),
 )
 
 function inputClass(hasError: boolean): string {
@@ -217,12 +218,12 @@ async function handleSubmit() {
 
   if (success) {
     if (rememberCredentials.value) {
-      localStorage.setItem('sel:username', form.username)
-      localStorage.setItem('sel:serverUrl', form.serverUrl)
+      storage.set('username', form.username)
+      storage.set('serverUrl', form.serverUrl)
     }
     else {
-      localStorage.removeItem('sel:username')
-      localStorage.removeItem('sel:serverUrl')
+      storage.remove('username')
+      storage.remove('serverUrl')
     }
     router.push('/dashboard')
   }
