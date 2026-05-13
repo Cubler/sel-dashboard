@@ -9,13 +9,13 @@ COPY . .
 RUN npm run build
 
 # ── Production stage ───────────────────────────────────────────────────────────
-# Nitro bundles everything into .output — no node_modules needed at runtime
 FROM node:20-alpine
 WORKDIR /app
 
-COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server/prod-server.mjs ./server/prod-server.mjs
 
 EXPOSE 3000
 ENV NODE_ENV=production
 
-CMD ["node", "./.output/server/index.mjs"]
+CMD ["node", "server/prod-server.mjs"]

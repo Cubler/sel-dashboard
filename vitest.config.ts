@@ -1,19 +1,28 @@
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath } from 'node:url'
 
-export default defineVitestConfig({
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '~': fileURLToPath(new URL('./app', import.meta.url)),
+    },
+  },
   test: {
-    environment: 'nuxt',
+    exclude: ['tests/e2e/**', 'node_modules/**'],
+    environment: 'happy-dom',
     coverage: {
       provider: 'v8',
-      // Focus on app source — exclude unreachable orchestration files
       include: ['app/**/*.{ts,vue}'],
       exclude: [
         'app/pages/**',
         'app/middleware/**',
         'app/plugins/**',
+        'app/router.ts',
+        'app/main.ts',
         'app/app.vue',
         'app/types/**',
-        // View-heavy components without dedicated tests (same rationale as pages exclusion)
         'app/components/ConnectionIndicator.vue',
         'app/components/SymbolDetailModal.vue',
         'app/components/UserMenu.vue',

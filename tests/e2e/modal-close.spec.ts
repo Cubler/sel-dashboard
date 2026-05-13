@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test'
 
 test.describe('SymbolDetailModal close', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000/')
+    await page.goto('http://localhost:5173/')
     // Log in
-    await page.getByLabel('Server URL').fill('http://localhost:3000')
+    await page.getByLabel('Server URL').fill('http://localhost:5173')
     await page.getByLabel('Username').fill('testuser')
     await page.getByLabel('Password').fill('testpass')
     await page.getByRole('button', { name: 'Connect to Server' }).click()

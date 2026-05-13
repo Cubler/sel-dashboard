@@ -120,6 +120,10 @@ import { usePreferencesStore } from '~/stores/preferences'
 import { useSymbolPolling } from '~/composables/useSymbolPolling'
 import { usePolling } from '~/composables/usePolling'
 import type { PollingInterval } from '~/types/api'
+import UserMenu from '~/components/UserMenu.vue'
+import ConnectionIndicator from '~/components/ConnectionIndicator.vue'
+import SymbolTable from '~/components/SymbolTable.vue'
+import SymbolDetailModal from '~/components/SymbolDetailModal.vue'
 
 const {
   username, serverUrl, symbols, symbolValues, symbolHistory,

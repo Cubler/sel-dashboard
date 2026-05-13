@@ -214,6 +214,7 @@ export { QualityIndicator }
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import {
   Chart,
+  LineController,
   LineElement,
   PointElement,
   LinearScale,
@@ -225,7 +226,7 @@ import type { QualityValidity, Symbol, SymbolHistory, SymbolValue } from '~/type
 import { getSymbolStatus } from '~/utils/qualityHelpers'
 import { formatTimestamp, formatRelativeTime, formatFullTimestamp } from '~/utils/dateHelpers'
 
-Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler)
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler)
 
 const props = defineProps<{
   symbolName: string
