@@ -30,7 +30,7 @@ npm run format
 
 ```
 LoginForm → apiService.authenticate() → POST /api/auth/token
-         → Bearer token stored in memory + localStorage
+         → Bearer token stored in memory + localStorage (via storageService)
 
 SymbolPolling composable (module-level singleton refs)
   → fetchSymbols()    → GET /api/symbols  (filtered to INS type client-side)
@@ -39,11 +39,11 @@ SymbolPolling composable (module-level singleton refs)
   → usePolling()      → setInterval wrapper with concurrent-call guard
 ```
 
-All application state lives in `app/composables/useSymbolPolling.ts` as module-level `ref`/`reactive` values — not in a Pinia store. The composable is a shared singleton; every caller gets the same refs. The Pinia stores (`preferences.ts`) only hold UI preferences (theme, autoStartPolling).
+All application state lives in `src/composables/useSymbolPolling.ts` as module-level `ref`/`reactive` values — not in a Pinia store. The composable is a shared singleton; every caller gets the same refs. Pinia (`src/stores/preferences.ts`) is used only for UI preferences (theme, autoStartPolling).
 
 ### Mock vs. real device
 
-`server/mock-plugin.ts` is a Vite plugin that registers middleware on the dev server (and on `vite preview`). When `VITE_DEVICE_IP` is set it proxies `/api/*` to `https://[IP]/api/v1/*` with path translation; otherwise it serves mock data. The production Docker server (`server/prod-server.mjs`) always requires `VITE_DEVICE_IP` — it proxies to the real device and has no mock fallback.
+`server/mock-plugin.ts` is a Vite plugin that registers middleware on the dev server (and on `vite preview`). When `VITE_DEVICE_IP` is set it proxies `/api/*` to `https://[IP]/api/v1/*` with path translation; otherwise it serves mock data. The production server (`server/prod-server.mjs`) always requires `VITE_DEVICE_IP` — it proxies to the real device and has no mock fallback.
 
 Path translations:
 - `/api/auth/token` → `/api/v1/auth/token`
@@ -54,9 +54,9 @@ The device uses a self-signed TLS cert; set `NODE_TLS_REJECT_UNAUTHORIZED=0` alo
 
 ### Auth lifecycle
 
-`app/main.ts` calls `useSymbolPolling().init()` before `app.mount()`, which checks `apiService.isTokenValid()` (token present + not expired) and restores `isAuthenticated` from localStorage. The Vue Router `beforeEach` guard in `app/router.ts` then redirects unauthenticated users to `/login`.
+`src/main.ts` calls `useSymbolPolling().init()` before `app.mount()`, which checks `apiService.isTokenValid()` (token present + not expired) and restores `isAuthenticated` from localStorage. The Vue Router `beforeEach` guard in `src/router.ts` then redirects unauthenticated users to `/login`.
 
-Token expiry is tracked as an epoch ms value (`Date.now() + expiresIn * 1000`) stored in localStorage alongside the token string. The 401 response interceptor in `apiService.ts` clears the token and hard-navigates to `/login` via `window.location.replace`.
+Token expiry is tracked as an epoch ms value (`Date.now() + expiresIn * 1000`) stored in localStorage alongside the token string via `storageService`. The 401 response interceptor in `apiService.ts` clears the token and hard-navigates to `/login` via `window.location.replace`.
 
 ### History accumulation
 
@@ -64,7 +64,7 @@ No history endpoint exists. `addToHistory()` in the composable appends on every 
 
 ### Component imports
 
-All page files (`app/pages/`) must explicitly import their child components — there is no auto-import. The `~/` alias resolves to `app/` (configured in both `vite.config.ts` and `vitest.config.ts`).
+All page files (`src/pages/`) must explicitly import their child components — there is no auto-import. The `~/` alias resolves to `src/` (configured in both `vite.config.ts` and `vitest.config.ts`).
 
 ### Testing
 
