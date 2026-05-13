@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Leave blank to use built-in mock server routes (default).
+      # Set to the device IP to proxy API calls to the real industrial device.
+      # When set, also add NODE_TLS_REJECT_UNAUTHORIZED=0 for self-signed certs.
+      - VITE_DEVICE_IP=
