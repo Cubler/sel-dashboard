@@ -2,6 +2,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   ssr: false,
+  experimental: {
+    viteEnvironmentApi: true,
+  },
   devtools: { enabled: true },
   modules: [
     '@nuxt/eslint',

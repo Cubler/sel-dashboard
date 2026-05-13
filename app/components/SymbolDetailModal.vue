@@ -5,11 +5,10 @@
       <div
         class="fixed inset-0 bg-black/50 transition-opacity"
         aria-hidden="true"
-        @click="emit('close')"
       />
 
-      <!-- Panel container -->
-      <div class="relative flex min-h-full items-center justify-center p-4">
+      <!-- Panel container (handles outside clicks) -->
+      <div class="relative flex min-h-full items-center justify-center p-4" @click="emit('close')">
         <div
           ref="panelRef"
           role="dialog"
